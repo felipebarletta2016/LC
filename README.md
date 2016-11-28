@@ -1,2 +1,2 @@
-# LC
-Chapter3
+# Distribuição Gompertz
+
