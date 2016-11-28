@@ -1,0 +1,170 @@
+---
+title: "Analysing survival data with highly negatively skewed distribution: The Gompertz-sinh family"
+author: "http://dx.doi.org/10.1080/02664760802663072"
+date: "08-08-2016"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+    code_folding: show
+    theme: flatly
+---
+
+
+
+Kahadawala Cooray[^1] and Malwane M.A. Ananda[^2].
+
+[^1]: Department of Mathematics, Central Michigan University, Mount Pleasant, MI USA.
+[^2]: Department of Mathematical Sciences, University of Nevada, Las Vegas, NV, USA.
+
+# Gompertz Distribution
+
+A distribuição Gompertz é largamente usada para descever a distribuição de morte em populações de pessoas adultas ou animais ou até mesmo em ciências atuariais.
+
+**A função densidade de probabilidade (*f.d.p.*) é:**
+
+>$f(x; a,b) = be^{ax}exp(-b/a(e^{ax}-1))$
+
+**Os autores reparametrizam a *f.d.p.* da seguinte maneira:**
+
+>$f(x; \gamma,\phi) = (\frac{\gamma}{\phi}) e^{x / \phi}exp(-\gamma(e^{x / \phi}-1))$
+
+```{r,echo=TRUE}
+##simulação para a densidade
+x <- c(seq(1,100,.1))
+
+dG <- function(x,a,b, log=FALSE){
+    d2 <- numeric(length(x))
+    d2 <- b*exp(a*x)*exp(-b/a*(exp(a*x) - 1))
+    dens <- if(log) log(d2) else d2
+    return (dens)
+}
+plot(sort(x),dG(sort(x),a=.16,b=.0000002),type ="l", col = 1,lwd =1.5,lty=1,axes=F,
+     main ="Density Function - Gompertz",xlab = "x",, ylab='Density',xlim=c(0,100),ylim=c(0,.06))
+lines(sort(x),dG(sort(x),a=.1,b=0.0001),lty=6, lwd =1.5)
+lines(sort(x),dG(sort(x),a=.05,b=0.0055) ,lty=2, lwd =1.5)
+#lines(sort(x),dG(sort(x),a=.1,b=0.1) ,lty=3, lwd =1.5)
+axis(1, at=seq(0,100,10), cex.axis=0.7)
+axis(2, at=seq(0,0.06,0.01), cex.axis=0.7)
+
+```
+
+**A função risco é dada pela função:**
+
+>$h(x; a,b) = be^{ax}$
+
+```{r,echo=FALSE}
+ ##### Hazard Gompertz
+HG <- function(x,a,b){
+    b*exp(a*x)
+    }
+
+
+plot(sort(x),HG(sort(x),a=0.16,b=.0000002),type ="l", col = 1,lwd =1.5,lty=6,axes=F,
+     main ="Hazard Function - Gompertz",xlab = "x", ylab='h(x)',ylim=c(0,.1))
+lines(sort(x),HG(sort(x),a=.1,b=0.0001) ,lty=2, lwd =1.5)
+lines(sort(x),HG(sort(x),a=.05,b=0.0065),lty=1, lwd =1.5)
+axis(1, at=seq(0,100,10), cex.axis=0.7)
+axis(2, at=seq(0,0.1,0.01), cex.axis=0.7)
+```
+
+## Gompertz-sinh Distribution
+
+A distribuição Gompertz Hiperbólica, aspresenta uma calda a esquerda mais longa e pesada do que a Gompertz
+apresentada anteriormente.
+
+**Sua *f.d.p.* é dada a seguir:**
+
+>$f(x;\alpha, \theta) = (\frac{\alpha} {\theta})e^{x / \theta} cosh(e^{x / \theta}-1)exp(-\alpha sinh(e^{x / \theta}-1))$
+
+
+
+
+
+
+```{r,echo=FALSE}
+######### Density function - Gompertz Sinh
+
+GS<-function(x,alpha,theta,log=FALSE){
+  p1 = exp(x/theta)
+  d = (alpha/theta)*p1*cosh(p1-1)*exp(-alpha*sinh(p1-1))
+  dens <- if(log) log(d) else d
+  return (dens)
+}
+
+plot(sort(x),GS(sort(x),alpha=.5,theta=50),type ="l", col = 1,lwd =1.5,lty=2,
+     main ="Gompertz Sinh Distribution" ,xlab = "x",, ylab='Density',axes=F,
+     xlim=c(0,100),ylim=c(0,.05))
+lines(sort(x),GS(sort(x),alpha=.1,theta=50),lty=6, lwd =1.5)
+lines(sort(x),GS(sort(x),alpha=.019,theta=50) ,lty=1, lwd =1.5)
+axis(1, at=seq(0,100,10), cex.axis=0.7)
+axis(2, at=seq(0,0.06,0.01), cex.axis=0.7)
+
+```
+
+**A função risco da distribuição Gompertz Hiperbólica é:**
+
+>$h(x; \alpha, \theta) = (\frac{\alpha} {\theta})e^{x / \theta} cosh(e^{x / \theta}-1)$
+
+```{r, echo=FALSE}
+######### Hazard function - Gompertz Sinh
+HG <- function(x,alpha,theta){
+    p1 = exp(x/theta)
+    h = (alpha/theta)*p1*cosh(p1-1)
+    return (h)
+    }
+
+
+plot(sort(x),HG(sort(x),alpha=.5,theta=50),type ="l", col = 1,lwd =1.5,lty=1,axes=F,
+     main ="Hazard Function",xlab = "x",, ylab='Hazard',xlim=c(0,100),ylim=c(0,.1))
+
+lines(sort(x),HG(sort(x),alpha=.1,theta=50) ,lty=2, lwd =1.5)
+lines(sort(x),HG(sort(x),alpha=.01,theta=50),lty=6, lwd =1.5)
+axis(1, at=seq(0,100,10), cex.axis=0.7)
+axis(2, at=seq(0,0.1,0.01), cex.axis=0.7)
+
+```
+
+## Exponentiated Gompertz-sinh Distribution
+
+Em geral, no mínimo três parâmetros são necessários para construir função de risco mais flexíveis.
+
+**Sua *f.d.p.* é dada a seguir:**
+
+>$f(x;\alpha, \beta, \theta) = (\frac{\beta \alpha} {\theta})e^{x / \theta} cosh(e^{x / \theta}-1)exp(-\alpha sinh(e^{x / \theta}-1))(1-exp(-\alpha sinh(e{x / \theta}-1)))^{\beta-1}$
+
+
+```{r, echo=FALSE}
+#==================================================================================================================================#
+#================================= Exponentiated GOMPERTZ SINH ====================================================================#
+#==================================================================================================================================#
+EGS <- function(x,alpha,beta,theta, log=FALSE){
+    p1 <- exp(x/theta)
+    d2 <- ((beta*alpha)/theta)*p1*cosh(p1-1)*exp(-alpha*sinh(p1-1))*(1-exp(-alpha*sinh(p1-1)))^(beta-1)
+    dens <- if(log) log(d2) else d2
+    return (dens)
+    }
+
+plot(sort(x),EGS(sort(x),alpha=.01,beta=0.4, theta=45),type ="l", col = 1,lwd =1.5,lty=1,axes=F,
+     main ="Density Function - Exponentiated Gompertz Sinh",xlab = "x", ylab='Density',ylim=c(0,.05))
+lines(sort(x),EGS(sort(x),alpha=1,beta=0.75, theta=70),lty=6, lwd =1.5)
+lines(sort(x),EGS(sort(x),alpha=7,beta=3, theta=120) ,lty=2, lwd =1.5)
+lines(sort(x),EGS(sort(x),alpha=0.2,beta=2, theta=60) ,lty=3, lwd =1.5)
+axis(1,at=seq(0,100,10),cex.axis=0.7)
+axis(2,at=seq(0,0.04,0.01),cex.axis=0.7)
+```
+
+## Gráficos das simulações
+
+Abaixo temos os gráficos com o resultado das simulações das medidas de vício e raíz quadrada do erro quadrático médio das estimativas dos parâmestros $\alpha$ e $\theta$ da distribuição Gompertz-Sinh, considerando diferentes tamanhos de amostras.
+
+
+
+
+
+**AGORA VAMOS VER NO**
+
+
+
+<https://www.r-project.org/>
